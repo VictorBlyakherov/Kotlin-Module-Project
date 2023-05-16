@@ -1,13 +1,12 @@
-class NoteDetail(val noteId: Int): DetailInterface {
+class NoteDetail(val noteId: Int): ListInterface {
     override var title: String = ""
-    override var detailText: String = ""
-    override var backRef: () -> Unit = {}
+    override val itemList: MutableList <MenuItem> = mutableListOf()
 
-    override fun prepareData() {
+    init {
         val tempNote: Note = notesData.filter { el -> el.id == noteId }[0]
         title = "Просмотр заметки ${tempNote.name}"
-        detailText = tempNote.text
-        backRef = {menu.showListMenu(NoteList(tempNote.archiveId))}
-    }
+        itemList.add(MenuItem(tempNote.text, isActive = false, isExecute = false) { })
 
+        itemList.add(MenuItem("Назад к списку заметок", isActive = true, isExecute = false) { menu.showListMenu(NoteList(tempNote.archiveId)) })
+    }
 }

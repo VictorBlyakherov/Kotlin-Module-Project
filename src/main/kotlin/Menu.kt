@@ -1,55 +1,40 @@
-import java.util.*
-
 class Menu {
 
-    fun showDetailMenu(menuPage: DetailInterface) {
-        menuPage.prepareData()
-        println(menuPage.title)
-        println()
-        println(menuPage.detailText)
-        println()
-        println("Для возврата к предыдущему экрану нажмите 0")
-        val userChoice = getIntUserResponse(0)
-        menuPage.backRef.invoke()
-    }
-
-
     fun showListMenu(menuPage: ListInterface) {
-        menuPage.prepareListItem()
-        println("Выберите номер пункта меню:")
         println(menuPage.title)
-        var count: Int = 1
-        val tempMap: MutableMap<Int, String> = mutableMapOf()
-        for (el in menuPage.itemList.entries) {
-            println("$count. ${el.key}")
-            tempMap.put(count, el.key)
-            count++
+        var count: Int = 0
+        val tempMap: MutableMap<Int, () -> Unit> = mutableMapOf()
+        val tempChoiceList: MutableList<String> = mutableListOf()
+        for (el in menuPage.itemList) {
+            if (el.isActive) {
+                println("${count}. ${el.text}")
+                tempMap.put(count, el.action)
+                tempChoiceList.add(count, el.text)
+                count++
+            } else {
+                println(el.text)
+            }
+            if (el.isExecute) {
+                el.action.invoke()
+            }
         }
-        val userChoice = getIntUserResponse(count)
-        menuPage.itemList[tempMap[userChoice]]?.invoke()
+        val userChoice = getIntUserResponse(count - 1, tempChoiceList)
+        tempMap[userChoice]?.invoke()
     }
 
-    private fun getIntUserResponse(count: Int): Int {
+    private fun getIntUserResponse(count: Int, choiceList: List<String>): Int {
         while (true) {
-            val userResponse = Scanner(System.`in`).nextLine()
+            val userResponse = scanner.nextLine()
             if (isInteger(userResponse) && (userResponse.toInt() in 0..count)) {
                 return userResponse.toInt()
+            } else {
+                println("Не пойдет. Введите целое число в диапазоне 0..$count")
+                for ((countElement, el) in choiceList.withIndex()) {
+                    println("${countElement}. $el")
+                }
             }
-            println("Не пойдет. Введите целое число в диапазоне 0..$count")
         }
     }
 
-    private fun getTextUserResponse(): String {
-        return Scanner(System.`in`).nextLine()
-    }
-
-
-    private fun isInteger(s: String): Boolean {
-        return try {
-            s.toInt()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
-    }
+    private fun isInteger(s: String): Boolean = s.toIntOrNull() != null
 }

@@ -2,14 +2,13 @@ import kotlin.system.exitProcess
 
 class ArchiveList(): ListInterface {
     override val title = "Список архивов"
-    override val itemList: MutableMap<String, () -> Unit> = mutableMapOf()
+    override val itemList: MutableList<MenuItem> = mutableListOf()
+    init {
 
-    override fun prepareListItem() {
-        itemList.put("Создать архив") {}
+        itemList.add(MenuItem("Создать архив", isActive = true, isExecute = false) { menu.showListMenu(ArchiveAdd()) })
         for (el in archivesData) {
-            itemList.put(el.name) { menu.showListMenu(NoteList(el.id)) }
-
+            itemList.add(MenuItem(el.name, isActive = true, isExecute = false) { menu.showListMenu(NoteList(el.id)) })
         }
-        itemList.put("Выход") { exitProcess(0) }
+        itemList.add(MenuItem("Выход", isActive = true, isExecute = false) { exitProcess(0) })
     }
 }
